@@ -532,7 +532,16 @@ export function buildSolutionReferences(
       instance.configParseResult.projectReferences!.map(ref => ref.path),
       { verbose: true }
     );
-    solutionBuilder.build();
+    // solutionBuilder.build();
+    let currentInvalidatedProject = solutionBuilder.getNextInvalidatedProject();
+    while (currentInvalidatedProject) {
+      currentInvalidatedProject.done(
+        void 0,
+        instance.solutionBuilderHost.writeFile,
+        instance.transformers
+      );
+      currentInvalidatedProject = solutionBuilder.getNextInvalidatedProject();
+    }
     instance.solutionBuilderHost.ensureAllReferenceTimestamps();
     instancesBySolutionBuilderConfigs.set(
       instance.filePathKeyMapper(instance.configFilePath!),
